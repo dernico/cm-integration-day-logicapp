@@ -1,0 +1,45 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Send_an_email_(V2)": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "office365"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "To": "nico.bolender@ebizcon.de",
+                        "Subject": "cool request",
+                        "Body": "<p>@{triggerOutputs()?['body']?['contentData']}</p>"
+                    },
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {}
+            }
+        },
+        "triggers": {
+            "When_messages_are_available_in_a_queue": {
+                "type": "ServiceProvider",
+                "inputs": {
+                    "parameters": {
+                        "queueName": "mail",
+                        "isSessionsEnabled": false
+                    },
+                    "serviceProviderConfiguration": {
+                        "connectionName": "serviceBus",
+                        "operationId": "receiveQueueMessages",
+                        "serviceProviderId": "/serviceProviders/serviceBus"
+                    }
+                },
+                "splitOn": "@triggerOutputs()?['body']"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {}
+    },
+    "kind": "Stateful"
+}
